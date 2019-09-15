@@ -16,7 +16,7 @@ from django.contrib.auth.hashers import make_password
 # Create your views here.
 
 class AboutView(TemplateView):
-    template_name = 'about.html'
+    template_name = 'complaints_app/about.html'
 
 class ComplaintDetailView(DetailView):
     model = Complaint
@@ -70,7 +70,7 @@ def register(request):
         student = User.objects.create(username = username, password=make_password(password))
         grievant = Grievant.objects.create(student = student ,Registeration=reg_num,Room=room_num,Hostel=hostel)
         grievant.save()
-        return redirect('complaints_app/about.html')
+        return redirect('/')
     return render(request, 'registeration/signup.html', None)
 
 
