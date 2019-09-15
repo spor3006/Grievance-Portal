@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login,authenticate
 from complaints_app.models import Grievant,Complaint,Department,User
 from django.utils import timezone
@@ -9,12 +10,48 @@ from django.views.generic import (TemplateView,ListView,
                                   DetailView,CreateView,
                                   UpdateView,DeleteView)
 
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.hashers import make_password
 # Create your views here.
 
 class AboutView(TemplateView):
     template_name = 'about.html'
+
+class ComplaintDetailView(DetailView):
+    model = Complaint
+
+
+class ComplaintListUserView(ListView):
+    model = Complaint
+
+    def get_queryset(self):
+        grievant = Grievant.objects.get(student = self.request.user)
+        return Complaint.objects.filter(grievant = grievant)
+
+
+
+class CreateComplaintView(LoginRequiredMixin,CreateView):
+    login_url = '/login/'
+    redirect_field_name = 'complaints_app/complaint_detail.html'
+
+    form_class = ComplaintForm
+
+    model = Complaint
+
+class UpdateComplaintView(LoginRequiredMixin,UpdateView):
+    login_url = '/login/'
+    redirect_field_name = 'complaints_app/complaint_detail.html'
+
+    form_class = ComplaintForm
+
+    model = Complaint
+
+class DeleteComplaintView(LoginRequiredMixin,DeleteView):
+    model = Complaint
+    success_url = reverse_lazy('complaints_list')
+
+
 
 def register(request):
     if request.method == 'POST':
@@ -30,17 +67,19 @@ def register(request):
         hostel = request.POST['hostel']
         if password != password2:
             return render(request,'registeration/signup.html', {'error' : 'Passwords dont match'})
-        student = User.objects.create(username = username, password=password)
+        student = User.objects.create(username = username, password=make_password(password))
         grievant = Grievant.objects.create(student = student ,Registeration=reg_num,Room=room_num,Hostel=hostel)
         grievant.save()
         return redirect('complaints_app/about.html')
     return render(request, 'registeration/signup.html', None)
 
+
 def userlogin(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = autheticate(username= username,password = password)
+        print(username+" "+password)
+        user = authenticate(username= username,password = password)
         if user:
             if user.is_active:
                 login(request,user)
@@ -51,6 +90,7 @@ def userlogin(request):
             return HttpResponse("Invalid login details")
     else:
         return render(request,'registeration/login.html')
+
 
 @login_required
 def user_logout(request):
