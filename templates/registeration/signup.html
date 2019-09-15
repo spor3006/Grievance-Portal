@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>SIGNUP</title>
+  </head>
+  <body>
+    <form class="signup" action="" method="POST">
+      {%csrf_token%}
+      <input type="text" name="username" placeholder="Username" class='text' required>
+      <br>
+      <input type="number" name="reg_num" placeholder="Registeration Number" class='text' required>
+      <br>
+      <input type="text" pattern="[a-zA-Z0-9\s]+" name="room_num" placeholder="Room Number" class='text' required>
+      <br>
+      <input type="text" pattern="[a-zA-Z0-9\s]+" name="hostel" placeholder="Hostel" class='text' required>
+      <br>
+      <input type="password" name="password" placeholder="Password" class='text' required>
+      <br>
+      <input type="password" name="password2" placeholder="Confirm Password" class='text' required>
+      <br>
+      <input type="submit" name="submit_button" value="Submit">
+    </form>
+  </body>
+</html>
